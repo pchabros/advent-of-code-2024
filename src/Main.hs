@@ -1,21 +1,20 @@
 module Main where
 
-import Data.List (sort, transpose)
+import Data.List (transpose)
 import Day1 (inputPath)
 
-parseIdsPair :: String -> [Integer]
-parseIdsPair line = map read $ words line
+parseColumns :: String -> ([Integer], [Integer])
+parseColumns input = (columns !! 0, columns !! 1)
+  where
+    columns = transpose $ map (map read . words) $ lines input
 
-sortIdLists :: [[Integer]] -> [[Integer]]
-sortIdLists pairs = transpose $ map sort $ transpose pairs
+count :: Integer -> [Integer] -> Integer
+count x = toInteger . length . filter (== x)
 
-calculatePairDistance :: [Integer] -> Integer
-calculatePairDistance [] = 0
-calculatePairDistance [_] = 0
-calculatePairDistance (id1 : id2 : _) = abs (id1 - id2)
+calculateScore :: ([Integer], [Integer]) -> Integer
+calculateScore (col1, col2) = foldl (\acc number -> acc + number * count number col2) 0 col1
 
 main :: IO ()
 main = do
   input <- readFile inputPath
-  let pairs = map parseIdsPair $ lines input
-  print $ sum $ map calculatePairDistance $ sortIdLists pairs
+  print $ calculateScore $ parseColumns input
